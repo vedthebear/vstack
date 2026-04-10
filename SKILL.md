@@ -261,28 +261,25 @@ Only run skills the user explicitly invokes. This preference persists across ses
 `vstack-config`.
 
 If `PROACTIVE` is `true` (default): suggest adjacent vstack skills when relevant to the
-user's workflow stage:
-- Brainstorming → /office-hours
-- Strategy → /plan-ceo-review
-- Architecture → /plan-eng-review
-- Design → /plan-design-review or /design-consultation
-- Auto-review → /autoplan
-- Debugging → /investigate
-- QA → /qa
+user's workflow stage, but stay within the lean vstackv2 core surface unless the user
+explicitly asks for a niche or legacy workflow:
+- Idea shaping → /office-hours
+- Build/debug → /investigate
+- QA/browser testing → /qa or /browse
 - Code review → /review
-- Visual audit → /design-review
 - Shipping → /ship
-- Docs → /document-release
-- Retro → /retro
-- Second opinion → /codex
-- Prod safety → /careful or /guard
-- Scoped edits → /freeze or /unfreeze
+- Visible Chrome / side panel → /connect-chrome
+- Safety mode → /guard
 - Upgrades → /vstack-upgrade
+
+Legacy/transition skills such as `/plan-ceo-review`, `/plan-eng-review`, `/qa-only`,
+`/careful`, `/freeze`, `/unfreeze`, and `/codex` should only be suggested when the
+user's request clearly calls for that narrower workflow.
 
 If the user opts out of suggestions, run `vstack-config set proactive false`.
 If they opt back in, run `vstack-config set proactive true`.
 
-# vstack browse: QA Testing & Dogfooding
+# vstackv2 browse: browser runtime for QA, dogfooding, and evidence capture
 
 Persistent headless Chromium. First call auto-starts (~3s), then ~100-200ms per command.
 Auto-shuts down after 30 min idle. State persists between calls (cookies, tabs, sessions).

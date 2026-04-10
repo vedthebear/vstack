@@ -69,7 +69,8 @@ interface DedupIndex {
 }
 
 function getDedupPath(): string {
-  return path.join(os.homedir(), '.vstack-dev', 'harvests', 'dedup.json');
+  const root = process.env.VSTACK_DEV_ROOT || path.join(os.homedir(), '.vstack-dev');
+  return path.join(root, 'harvests', 'dedup.json');
 }
 
 function loadDedupIndex(): DedupIndex {
@@ -181,7 +182,8 @@ export class WorktreeManager {
 
       if (!isDuplicate) {
         // Save patch
-        const harvestDir = path.join(os.homedir(), '.vstack-dev', 'harvests', this.runId);
+        const root = process.env.VSTACK_DEV_ROOT || path.join(os.homedir(), '.vstack-dev');
+        const harvestDir = path.join(root, 'harvests', this.runId);
         fs.mkdirSync(harvestDir, { recursive: true });
         patchPath = path.join(harvestDir, `${testName}.patch`);
         fs.writeFileSync(patchPath, patch);

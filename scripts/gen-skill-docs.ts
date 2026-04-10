@@ -276,7 +276,7 @@ function processTemplate(tmplPath: string, host: Host = 'claude'): { outputPath:
     content = content.replace(/\.claude\/skills\/review/g, '.agents/skills/vstack/review');
     content = content.replace(/\.claude\/skills/g, '.agents/skills');
 
-    if (outputDir) {
+    if (outputDir && !DRY_RUN) {
       const codexName = codexSkillName(skillDir === '.' ? '' : skillDir);
       const agentsDir = path.join(outputDir, 'agents');
       fs.mkdirSync(agentsDir, { recursive: true });

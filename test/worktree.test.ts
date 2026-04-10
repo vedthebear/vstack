@@ -46,9 +46,12 @@ function cleanupRepo(dir: string): void {
 
 // Track repos to clean up
 const repos: string[] = [];
+const DEV_ROOT = fs.mkdtempSync(path.join(os.tmpdir(), 'vstack-dev-'));
 
 // Dedup index path — clear before each test to avoid cross-run contamination
-const DEDUP_PATH = path.join(os.homedir(), '.vstack-dev', 'harvests', 'dedup.json');
+const DEDUP_PATH = path.join(DEV_ROOT, 'harvests', 'dedup.json');
+
+process.env.VSTACK_DEV_ROOT = DEV_ROOT;
 
 afterEach(() => {
   for (const repo of repos) {

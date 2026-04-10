@@ -1,41 +1,38 @@
-# gstack
+# vstackv2
 
-> "I don't think I've typed like a line of code probably since December, basically, which is an extremely large change." — [Andrej Karpathy](https://fortune.com/2026/03/21/andrej-karpathy-openai-cofounder-ai-agents-coding-state-of-psychosis-openclaw/), No Priors podcast, March 2026
+vstackv2 is a lean personal toolkit for AI coding. The goal is no longer "model a whole virtual engineering org." The goal is to keep the parts that actually compound: a fast persistent browser, a small set of high-leverage skills, and a setup you can install once and reuse across future agent sessions.
 
-When I heard Karpathy say this, I wanted to find out how. How does one person ship like a team of twenty? Peter Steinberger built [OpenClaw](https://github.com/openclaw/openclaw) — 247K GitHub stars — essentially solo with AI agents. The revolution is here. A single builder with the right tooling can move faster than a traditional team.
+The browser runtime remains the strongest part of the system and stays the stable base. Around it, v2 narrows the public skill surface, keeps a small transition layer for old muscle memory, and leaves broader historical workflows in a legacy tier instead of presenting them as the default product.
 
-I'm [Garry Tan](https://x.com/garrytan), President & CEO of [Y Combinator](https://www.ycombinator.com/). I've worked with thousands of startups — Coinbase, Instacart, Rippling — when they were one or two people in a garage. Before YC, I was one of the first eng/PM/designers at Palantir, cofounded Posterous (sold to Twitter), and built Bookface, YC's internal social network.
+Core surface:
+- `/browse`
+- `/office-hours`
+- `/investigate`
+- `/review`
+- `/qa`
+- `/ship`
+- `/guard`
+- `/connect-chrome`
+- `/vstack-upgrade`
 
-**gstack is my answer.** I've been building products for twenty years, and right now I'm shipping more code than I ever have. In the last 60 days: **600,000+ lines of production code** (35% tests), **10,000-20,000 lines per day**, part-time, while running YC full-time. Here's my last `/retro` across 3 projects: **140,751 lines added, 362 commits, ~115k net LOC** in one week.
+Transition skills still supported by default:
+- `/plan-ceo-review`
+- `/plan-eng-review`
+- `/qa-only`
+- `/careful`
+- `/freeze`
+- `/unfreeze`
+- `/codex`
 
-**2026 — 1,237 contributions and counting:**
-
-![GitHub contributions 2026 — 1,237 contributions, massive acceleration in Jan-Mar](docs/images/github-2026.png)
-
-**2013 — when I built Bookface at YC (772 contributions):**
-
-![GitHub contributions 2013 — 772 contributions building Bookface at YC](docs/images/github-2013.png)
-
-Same person. Different era. The difference is the tooling.
-
-**gstack is how I do it.** It turns Claude Code into a virtual engineering team — a CEO who rethinks the product, an eng manager who locks architecture, a designer who catches AI slop, a reviewer who finds production bugs, a QA lead who opens a real browser, a security officer who runs OWASP + STRIDE audits, and a release engineer who ships the PR. Twenty specialists and eight power tools, all slash commands, all Markdown, all free, MIT license.
-
-This is my open source software factory. I use it every day. I'm sharing it because these tools should be available to everyone.
-
-Fork it. Improve it. Make it yours. And if you want to hate on free open source software — you're welcome to, but I'd rather you just try it first.
-
-**Who this is for:**
-- **Founders and CEOs** — especially technical ones who still want to ship
-- **First-time Claude Code users** — structured roles instead of a blank prompt
-- **Tech leads and staff engineers** — rigorous review, QA, and release automation on every PR
+Legacy skills remain in-repo but are not part of the default v2 install. See [docs/VSTACKV2.md](docs/VSTACKV2.md).
 
 ## Quick start
 
-1. Install gstack (30 seconds — see below)
+1. Install vstackv2
 2. Run `/office-hours` — describe what you're building
-3. Run `/plan-ceo-review` on any feature idea
+3. Run `/investigate` while building or debugging
 4. Run `/review` on any branch with changes
-5. Run `/qa` on your staging URL
+5. Run `/qa` on your app or staging URL
 6. Stop there. You'll know if this is for you.
 
 ## Install — 30 seconds
@@ -46,11 +43,11 @@ Fork it. Improve it. Make it yours. And if you want to hate on free open source 
 
 Open Claude Code and paste this. Claude does the rest.
 
-> Install gstack: run **`git clone --single-branch --depth 1 https://github.com/garrytan/gstack.git ~/.claude/skills/gstack && cd ~/.claude/skills/gstack && ./setup`** then add a "gstack" section to CLAUDE.md that says to use the /browse skill from gstack for all web browsing, never use mcp\_\_claude-in-chrome\_\_\* tools, and lists the available skills: /office-hours, /plan-ceo-review, /plan-eng-review, /plan-design-review, /design-consultation, /review, /ship, /land-and-deploy, /canary, /benchmark, /browse, /qa, /qa-only, /design-review, /setup-browser-cookies, /setup-deploy, /retro, /investigate, /document-release, /codex, /cso, /autoplan, /careful, /freeze, /guard, /unfreeze, /gstack-upgrade. Then ask the user if they also want to add gstack to the current project so teammates get it.
+> Install vstackv2: run **`git clone --single-branch --depth 1 https://github.com/garrytan/gstack.git ~/.claude/skills/gstack && cd ~/.claude/skills/gstack && ./setup`** then add a "vstack" section to CLAUDE.md that says to use the /browse skill from vstack for web browsing, never use `mcp__claude-in-chrome__*` tools, and lists the core skills `/browse`, `/office-hours`, `/investigate`, `/review`, `/qa`, `/ship`, `/guard`, `/connect-chrome`, `/vstack-upgrade`. Mention that transition skills `/plan-ceo-review`, `/plan-eng-review`, `/qa-only`, `/careful`, `/freeze`, `/unfreeze`, and `/codex` still exist. Ask whether they also want the broader legacy surface via `./setup --legacy`.
 
 ### Step 2: Add to your repo so teammates get it (optional)
 
-> Add gstack to this project: run **`cp -Rf ~/.claude/skills/gstack .claude/skills/gstack && rm -rf .claude/skills/gstack/.git && cd .claude/skills/gstack && ./setup`** then add a "gstack" section to this project's CLAUDE.md that says to use the /browse skill from gstack for all web browsing, never use mcp\_\_claude-in-chrome\_\_\* tools, lists the available skills: /office-hours, /plan-ceo-review, /plan-eng-review, /plan-design-review, /design-consultation, /review, /ship, /land-and-deploy, /canary, /benchmark, /browse, /qa, /qa-only, /design-review, /setup-browser-cookies, /setup-deploy, /retro, /investigate, /document-release, /codex, /cso, /careful, /freeze, /guard, /unfreeze, /gstack-upgrade, and tells Claude that if gstack skills aren't working, run `cd .claude/skills/gstack && ./setup` to build the binary and register skills.
+> Add vstackv2 to this project: run **`cp -Rf ~/.claude/skills/gstack .claude/skills/gstack && rm -rf .claude/skills/gstack/.git && cd .claude/skills/gstack && ./setup`** then add a "vstack" section to this project's CLAUDE.md with the same core and transition skill list above. If you want the old broad surface in that repo too, run `./setup --legacy`.
 
 Real files get committed to your repo (not a submodule), so `git clone` just works. Everything lives inside `.claude/`. Nothing touches your PATH or runs in the background.
 
@@ -90,7 +87,7 @@ git clone --single-branch --depth 1 https://github.com/garrytan/gstack.git ~/gst
 cd ~/gstack && ./setup --host auto
 ```
 
-For Codex-compatible hosts, setup now supports both repo-local installs from `.agents/skills/gstack` and user-global installs from `~/.codex/skills/gstack`. All 28 skills work across all supported agents. Hook-based safety skills (careful, freeze, guard) use inline safety advisory prose on non-Claude hosts.
+For Codex-compatible hosts, setup supports both repo-local installs from `.agents/skills/gstack` and user-global installs from `~/.codex/skills/gstack`. The default install now favors the v2 core surface plus a small transition layer. Use `./setup --legacy` if you explicitly want the broader historical skill set.
 
 ## See it work
 

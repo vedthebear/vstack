@@ -1,49 +1,61 @@
-# vstack — AI Engineering Workflow
+# vstackv2 — Personal AI Coding Toolkit
 
-vstack is a collection of SKILL.md files that give AI agents structured roles for
-software development. Each skill is a specialist: CEO reviewer, eng manager,
-designer, QA lead, release engineer, debugger, and more.
+vstackv2 is a lean skill pack for AI coding agents. The default surface is small:
+keep the browser runtime, a few high-leverage workflow skills, and only enough
+transition compatibility to avoid breaking old habits.
 
-## Available skills
+## Core layers
 
-Skills live in `.agents/skills/`. Invoke them by name (e.g., `/office-hours`).
+1. Browser/runtime
+2. Core skills
+3. Optional legacy/transition skills
+
+## Core skills
+
+Skills live in `.agents/skills/`. The default install emphasizes this smaller set.
 
 | Skill | What it does |
 |-------|-------------|
-| `/office-hours` | Start here. Reframes your product idea before you write code. |
-| `/plan-ceo-review` | CEO-level review: find the 10-star product in the request. |
-| `/plan-eng-review` | Lock architecture, data flow, edge cases, and tests. |
-| `/plan-design-review` | Rate each design dimension 0-10, explain what a 10 looks like. |
-| `/design-consultation` | Build a complete design system from scratch. |
-| `/review` | Pre-landing PR review. Finds bugs that pass CI but break in prod. |
-| `/debug` | Systematic root-cause debugging. No fixes without investigation. |
-| `/design-review` | Design audit + fix loop with atomic commits. |
-| `/qa` | Open a real browser, find bugs, fix them, re-verify. |
-| `/qa-only` | Same as /qa but report only — no code changes. |
-| `/ship` | Run tests, review, push, open PR. One command. |
-| `/document-release` | Update all docs to match what you just shipped. |
-| `/retro` | Weekly retro with per-person breakdowns and shipping streaks. |
-| `/browse` | Headless browser — real Chromium, real clicks, ~100ms/command. |
-| `/setup-browser-cookies` | Import cookies from your real browser for authenticated testing. |
-| `/careful` | Warn before destructive commands (rm -rf, DROP TABLE, force-push). |
-| `/freeze` | Lock edits to one directory. Hard block, not just a warning. |
-| `/guard` | Activate both careful + freeze at once. |
-| `/unfreeze` | Remove directory edit restrictions. |
-| `/vstack-upgrade` | Update vstack to the latest version. |
+| `/browse` | Persistent browser for QA, screenshots, evidence capture, and dogfooding. |
+| `/office-hours` | Shape an idea before coding. Useful for scope, framing, and the first cut at the work. |
+| `/investigate` | Root-cause debugging and implementation troubleshooting. |
+| `/review` | Diff-focused code review before landing changes. |
+| `/qa` | Browser-driven QA loop that tests and fixes issues. |
+| `/ship` | Ship workflow for tests, review, PR prep, and release hygiene. |
+| `/guard` | Combined safety mode for destructive commands and scoped edits. |
+| `/connect-chrome` | Launch visible Chrome with the vstack side panel. |
+| `/vstack-upgrade` | Update the toolkit. |
+
+## Transition skills
+
+These still work in v2, but they are no longer the primary public surface:
+
+- `/plan-ceo-review`
+- `/plan-eng-review`
+- `/qa-only`
+- `/careful`
+- `/freeze`
+- `/unfreeze`
+- `/codex`
+
+## Legacy skills
+
+The repo still retains a broader legacy layer for now, but those skills are
+unsupported by default in the v2 install surface. Use `./setup --legacy` if you
+explicitly want the broader historical toolkit.
 
 ## Build commands
 
 ```bash
-bun install              # install dependencies
-bun test                 # run tests (free, <5s)
-bun run build            # generate docs + compile binaries
-bun run gen:skill-docs   # regenerate SKILL.md files from templates
-bun run skill:check      # health dashboard for all skills
+bun install
+bun run build
+bun run gen:skill-docs
+bun run gen:skill-docs --host codex
+bun run test:core
 ```
 
 ## Key conventions
 
-- SKILL.md files are **generated** from `.tmpl` templates. Edit the template, not the output.
-- Run `bun run gen:skill-docs --host codex` to regenerate Codex-specific output.
-- The browse binary provides headless browser access. Use `$B <command>` in skills.
-- Safety skills (careful, freeze, guard) use inline advisory prose — always confirm before destructive operations.
+- The browser command registry remains the source of truth for browse commands.
+- Generated skill docs still exist where code-coupled sections must stay in sync.
+- Setup now defaults to the v2 core surface. Legacy skills are opt-in.
