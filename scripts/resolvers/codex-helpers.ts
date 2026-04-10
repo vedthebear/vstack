@@ -62,10 +62,10 @@ policy:
 }
 
 export function codexSkillName(skillDir: string): string {
-  if (skillDir === '.' || skillDir === '') return 'gstack';
-  // Don't double-prefix: gstack-upgrade → gstack-upgrade (not gstack-gstack-upgrade)
-  if (skillDir.startsWith('gstack-')) return skillDir;
-  return `gstack-${skillDir}`;
+  if (skillDir === '.' || skillDir === '') return 'vstack';
+  // Don't double-prefix: vstack-upgrade → vstack-upgrade (not vstack-vstack-upgrade)
+  if (skillDir.startsWith('vstack-')) return skillDir;
+  return `vstack-${skillDir}`;
 }
 
 /**

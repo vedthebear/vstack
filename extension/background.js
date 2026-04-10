@@ -1,5 +1,5 @@
 /**
- * gstack browse — background service worker
+ * vstack browse — background service worker
  *
  * Polls /health every 10s to detect browse server.
  * Fetches /refs on snapshot completion, relays to content script.

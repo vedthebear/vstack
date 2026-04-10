@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+# vstack-review-log — atomically log a review result
+# Usage: vstack-review-log '{"skill":"...","timestamp":"...","status":"..."}'
+set -euo pipefail
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+eval "$("$SCRIPT_DIR/vstack-slug" 2>/dev/null)"
+VSTACK_HOME="${VSTACK_HOME:-$HOME/.vstack}"
+mkdir -p "$VSTACK_HOME/projects/$SLUG"
+
+# Validate: input must be parseable JSON (reject malformed or injection attempts)
+INPUT="$1"
+if ! printf '%s' "$INPUT" | bun -e "JSON.parse(await Bun.stdin.text())" 2>/dev/null; then
+  # Not valid JSON — refuse to append
+  echo "vstack-review-log: invalid JSON, skipping" >&2
+  exit 1
+fi
+
+echo "$INPUT" >> "$VSTACK_HOME/projects/$SLUG/$BRANCH-reviews.jsonl"

@@ -1,6 +1,6 @@
 # Browser — technical details
 
-This document covers the command reference and internals of gstack's headless browser.
+This document covers the command reference and internals of vstack's headless browser.
 
 ## Command reference
 
@@ -24,7 +24,7 @@ All selector arguments accept CSS selectors, `@e` refs after `snapshot`, or `@c`
 
 ## How it works
 
-gstack's browser is a compiled CLI binary that talks to a persistent local Chromium daemon over HTTP. The CLI is a thin client — it reads a state file, sends a command, and prints the response to stdout. The server does the real work via [Playwright](https://playwright.dev/).
+vstack's browser is a compiled CLI binary that talks to a persistent local Chromium daemon over HTTP. The CLI is a thin client — it reads a state file, sends a command, and prints the response to stdout. The server does the real work via [Playwright](https://playwright.dev/).
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -48,7 +48,7 @@ gstack's browser is a compiled CLI binary that talks to a persistent local Chrom
 
 ### Lifecycle
 
-1. **First call**: CLI checks `.gstack/browse.json` (in the project root) for a running server. None found — it spawns `bun run browse/src/server.ts` in the background. The server launches headless Chromium via Playwright, picks a random port (10000-60000), generates a bearer token, writes the state file, and starts accepting HTTP requests. This takes ~3 seconds.
+1. **First call**: CLI checks `.vstack/browse.json` (in the project root) for a running server. None found — it spawns `bun run browse/src/server.ts` in the background. The server launches headless Chromium via Playwright, picks a random port (10000-60000), generates a bearer token, writes the state file, and starts accepting HTTP requests. This takes ~3 seconds.
 
 2. **Subsequent calls**: CLI reads the state file, sends an HTTP POST with the bearer token, prints the response. ~100-200ms round trip.
 
@@ -114,15 +114,15 @@ Mutual exclusion: `--clip` + selector and `--viewport` + `--clip` both throw err
 
 ### Authentication
 
-Each server session generates a random UUID as a bearer token. The token is written to the state file (`.gstack/browse.json`) with chmod 600. Every HTTP request must include `Authorization: Bearer <token>`. This prevents other processes on the machine from controlling the browser.
+Each server session generates a random UUID as a bearer token. The token is written to the state file (`.vstack/browse.json`) with chmod 600. Every HTTP request must include `Authorization: Bearer <token>`. This prevents other processes on the machine from controlling the browser.
 
 ### Console, network, and dialog capture
 
 The server hooks into Playwright's `page.on('console')`, `page.on('response')`, and `page.on('dialog')` events. All entries are kept in O(1) circular buffers (50,000 capacity each) and flushed to disk asynchronously via `Bun.write()`:
 
-- Console: `.gstack/browse-console.log`
-- Network: `.gstack/browse-network.log`
-- Dialog: `.gstack/browse-dialog.log`
+- Console: `.vstack/browse-console.log`
+- Network: `.vstack/browse-network.log`
+- Dialog: `.vstack/browse-dialog.log`
 
 The `console`, `network`, and `dialog` commands read from the in-memory buffers, not disk.
 
@@ -140,7 +140,7 @@ $B status               # shows Mode: cdp
 $B disconnect           # back to headless mode
 ```
 
-The window has a subtle green shimmer line at the top edge and a floating "gstack" pill in the bottom-right corner so you always know which Chrome window is being controlled.
+The window has a subtle green shimmer line at the top edge and a floating "vstack" pill in the bottom-right corner so you always know which Chrome window is being controlled.
 
 **How it works:** Playwright's `channel: 'chrome'` launches your system Chrome binary via a native pipe protocol — not CDP WebSocket. All existing browse commands work unchanged because they go through Playwright's abstraction layer.
 
@@ -171,7 +171,7 @@ When you run `$B connect`, the extension **auto-loads** into the Playwright-cont
 
 ```bash
 $B connect              # launches Chrome with extension pre-loaded
-# Click the gstack icon in toolbar → Open Side Panel
+# Click the vstack icon in toolbar → Open Side Panel
 ```
 
 The port is auto-configured. You're done.
@@ -181,7 +181,7 @@ The port is auto-configured. You're done.
 If you want the extension in your everyday Chrome (not the Playwright-controlled one), run:
 
 ```bash
-bin/gstack-extension    # opens chrome://extensions, copies path to clipboard
+bin/vstack-extension    # opens chrome://extensions, copies path to clipboard
 ```
 
 Or do it manually:
@@ -190,16 +190,16 @@ Or do it manually:
 2. **Toggle "Developer mode" ON** (top-right corner)
 3. **Click "Load unpacked"** — a file picker opens
 4. **Navigate to the extension folder:** Press **Cmd+Shift+G** in the file picker to open "Go to folder", then paste one of these paths:
-   - Global install: `~/.claude/skills/gstack/extension`
-   - Dev/source: `<gstack-repo>/extension`
+   - Global install: `~/.claude/skills/vstack/extension`
+   - Dev/source: `<vstack-repo>/extension`
 
    Press Enter, then click **Select**.
 
    (Tip: macOS hides folders starting with `.` — press **Cmd+Shift+.** in the file picker to reveal them if you prefer to navigate manually.)
 
-5. **Pin it:** Click the puzzle piece icon (Extensions) in the toolbar → pin "gstack browse"
-6. **Set the port:** Click the gstack icon → enter the port from `$B status` or `.gstack/browse.json`
-7. **Open Side Panel:** Click the gstack icon → "Open Side Panel"
+5. **Pin it:** Click the puzzle piece icon (Extensions) in the toolbar → pin "vstack browse"
+6. **Set the port:** Click the vstack icon → enter the port from `$B status` or `.vstack/browse.json`
+7. **Open Side Panel:** Click the vstack icon → "Open Side Panel"
 
 #### What you get
 
@@ -209,7 +209,7 @@ Or do it manually:
 | **Side Panel** | Live scrolling feed of every browse command — shows command name, args, duration, status (success/error) |
 | **Refs tab** | After `$B snapshot`, shows the current @ref list (role + name) |
 | **@ref overlays** | Floating panel on the page showing current refs |
-| **Connection pill** | Small "gstack" pill in the bottom-right corner of every page when connected |
+| **Connection pill** | Small "vstack" pill in the bottom-right corner of every page when connected |
 
 #### Troubleshooting
 
@@ -278,12 +278,12 @@ For `eval` files, single-line files return the expression value directly. Multi-
 
 ### Multi-workspace support
 
-Each workspace gets its own isolated browser instance with its own Chromium process, tabs, cookies, and logs. State is stored in `.gstack/` inside the project root (detected via `git rev-parse --show-toplevel`).
+Each workspace gets its own isolated browser instance with its own Chromium process, tabs, cookies, and logs. State is stored in `.vstack/` inside the project root (detected via `git rev-parse --show-toplevel`).
 
 | Workspace | State file | Port |
 |-----------|------------|------|
-| `/code/project-a` | `/code/project-a/.gstack/browse.json` | random (10000-60000) |
-| `/code/project-b` | `/code/project-b/.gstack/browse.json` | random (10000-60000) |
+| `/code/project-a` | `/code/project-a/.vstack/browse.json` | random (10000-60000) |
+| `/code/project-b` | `/code/project-b/.vstack/browse.json` | random (10000-60000) |
 
 No port collisions. No shared state. Each project is fully isolated.
 
@@ -293,7 +293,7 @@ No port collisions. No shared state. Each project is fully isolated.
 |----------|---------|-------------|
 | `BROWSE_PORT` | 0 (random 10000-60000) | Fixed port for the HTTP server (debug override) |
 | `BROWSE_IDLE_TIMEOUT` | 1800000 (30 min) | Idle shutdown timeout in ms |
-| `BROWSE_STATE_FILE` | `.gstack/browse.json` | Path to state file (CLI passes to server) |
+| `BROWSE_STATE_FILE` | `.vstack/browse.json` | Path to state file (CLI passes to server) |
 | `BROWSE_SERVER_SCRIPT` | auto-detected | Path to server.ts |
 | `BROWSE_CDP_URL` | (none) | Set to `channel:chrome` for real browser mode |
 | `BROWSE_CDP_PORT` | 0 | CDP port (used internally) |
@@ -304,9 +304,9 @@ No port collisions. No shared state. Each project is fully isolated.
 |------|-----------|-----------------|--------------------------|
 | Chrome MCP | ~5s | ~2-5s | ~2000 tokens (schema + protocol) |
 | Playwright MCP | ~3s | ~1-3s | ~1500 tokens (schema + protocol) |
-| **gstack browse** | **~3s** | **~100-200ms** | **0 tokens** (plain text stdout) |
+| **vstack browse** | **~3s** | **~100-200ms** | **0 tokens** (plain text stdout) |
 
-The context overhead difference compounds fast. In a 20-command browser session, MCP tools burn 30,000-40,000 tokens on protocol framing alone. gstack burns zero.
+The context overhead difference compounds fast. In a 20-command browser session, MCP tools burn 30,000-40,000 tokens on protocol framing alone. vstack burns zero.
 
 ### Why CLI over MCP?
 
@@ -316,7 +316,7 @@ MCP (Model Context Protocol) works well for remote services, but for local brows
 - **Connection fragility**: persistent WebSocket/stdio connections drop and fail to reconnect.
 - **Unnecessary abstraction**: Claude Code already has a Bash tool. A CLI that prints to stdout is the simplest possible interface.
 
-gstack skips all of this. Compiled binary. Plain text in, plain text out. No protocol. No schema. No connection management.
+vstack skips all of this. Compiled binary. Plain text in, plain text out. No protocol. No schema. No connection management.
 
 ## Acknowledgments
 
@@ -366,7 +366,7 @@ Tests spin up a local HTTP server (`browse/test/test-server.ts`) serving HTML fi
 
 | File | Role |
 |------|------|
-| `browse/src/cli.ts` | Entry point. Reads `.gstack/browse.json`, sends HTTP to the server, prints response. |
+| `browse/src/cli.ts` | Entry point. Reads `.vstack/browse.json`, sends HTTP to the server, prints response. |
 | `browse/src/server.ts` | Bun HTTP server. Routes commands to the right handler. Manages idle timeout. |
 | `browse/src/browser-manager.ts` | Chromium lifecycle — launch, tab management, ref map, crash detection. |
 | `browse/src/snapshot.ts` | Parses accessibility tree, assigns `@e`/`@c` refs, builds Locator map. Handles `--diff`, `--annotate`, `-C`. |
@@ -381,13 +381,13 @@ Tests spin up a local HTTP server (`browse/test/test-server.ts`) serving HTML fi
 
 ### Deploying to the active skill
 
-The active skill lives at `~/.claude/skills/gstack/`. After making changes:
+The active skill lives at `~/.claude/skills/vstack/`. After making changes:
 
 1. Push your branch
-2. Pull in the skill directory: `cd ~/.claude/skills/gstack && git pull`
-3. Rebuild: `cd ~/.claude/skills/gstack && bun run build`
+2. Pull in the skill directory: `cd ~/.claude/skills/vstack && git pull`
+3. Rebuild: `cd ~/.claude/skills/vstack && bun run build`
 
-Or copy the binary directly: `cp browse/dist/browse ~/.claude/skills/gstack/browse/dist/browse`
+Or copy the binary directly: `cp browse/dist/browse ~/.claude/skills/vstack/browse/dist/browse`
 
 ### Adding a new command
 

@@ -38,7 +38,7 @@ const HOST: Host = (() => {
 
 // ─── Shared Design Constants ────────────────────────────────
 
-/** gstack's 10 AI slop anti-patterns — shared between DESIGN_METHODOLOGY and DESIGN_HARD_RULES */
+/** vstack's 10 AI slop anti-patterns — shared between DESIGN_METHODOLOGY and DESIGN_HARD_RULES */
 const AI_SLOP_BLACKLIST = [
   'Purple/violet/indigo gradient backgrounds or blue-to-purple color schemes',
   '**The 3-column feature grid:** icon-in-colored-circle + bold title + 2-line description, repeated 3x symmetrically. THE most recognizable AI layout.',
@@ -77,10 +77,10 @@ const OPENAI_LITMUS_CHECKS = [
 // ─── Codex Helpers ───────────────────────────────────────────
 
 function codexSkillName(skillDir: string): string {
-  if (skillDir === '.' || skillDir === '') return 'gstack';
-  // Don't double-prefix: gstack-upgrade → gstack-upgrade (not gstack-gstack-upgrade)
-  if (skillDir.startsWith('gstack-')) return skillDir;
-  return `gstack-${skillDir}`;
+  if (skillDir === '.' || skillDir === '') return 'vstack';
+  // Don't double-prefix: vstack-upgrade → vstack-upgrade (not vstack-vstack-upgrade)
+  if (skillDir.startsWith('vstack-')) return skillDir;
+  return `vstack-${skillDir}`;
 }
 
 function extractNameAndDescription(content: string): { name: string; description: string } {
@@ -271,9 +271,9 @@ function processTemplate(tmplPath: string, host: Host = 'claude'): { outputPath:
     }
 
     // Replace remaining hardcoded Claude paths with host-appropriate paths
-    content = content.replace(/~\/\.claude\/skills\/gstack/g, ctx.paths.skillRoot);
-    content = content.replace(/\.claude\/skills\/gstack/g, ctx.paths.localSkillRoot);
-    content = content.replace(/\.claude\/skills\/review/g, '.agents/skills/gstack/review');
+    content = content.replace(/~\/\.claude\/skills\/vstack/g, ctx.paths.skillRoot);
+    content = content.replace(/\.claude\/skills\/vstack/g, ctx.paths.localSkillRoot);
+    content = content.replace(/\.claude\/skills\/review/g, '.agents/skills/vstack/review');
     content = content.replace(/\.claude\/skills/g, '.agents/skills');
 
     if (outputDir) {

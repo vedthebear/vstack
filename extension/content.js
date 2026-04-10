@@ -1,5 +1,5 @@
 /**
- * gstack browse — content script
+ * vstack browse — content script
  *
  * Receives ref data from background worker via chrome.runtime.onMessage.
  * Renders @ref overlay badges on the page (CDP mode only — positions are accurate).
@@ -18,7 +18,7 @@ function showStatusPill(connected, refs) {
 
   if (!statusPill) {
     statusPill = document.createElement('div');
-    statusPill.id = 'gstack-status-pill';
+    statusPill.id = 'vstack-status-pill';
     statusPill.style.cursor = 'pointer';
     statusPill.addEventListener('click', () => {
       // Ask background to open the side panel
@@ -33,7 +33,7 @@ function showStatusPill(connected, refs) {
   }
 
   const refText = refCount > 0 ? ` · ${refCount} refs` : '';
-  statusPill.innerHTML = `<span class="gstack-pill-dot"></span> gstack${refText}`;
+  statusPill.innerHTML = `<span class="vstack-pill-dot"></span> vstack${refText}`;
   statusPill.style.display = 'flex';
   statusPill.style.opacity = '1';
 
@@ -53,7 +53,7 @@ function hideStatusPill() {
 function ensureContainer() {
   if (overlayContainer) return overlayContainer;
   overlayContainer = document.createElement('div');
-  overlayContainer.id = 'gstack-ref-overlays';
+  overlayContainer.id = 'vstack-ref-overlays';
   overlayContainer.style.cssText = 'position: fixed; top: 0; left: 0; width: 0; height: 0; z-index: 2147483647; pointer-events: none;';
   document.body.appendChild(overlayContainer);
   return overlayContainer;
@@ -76,7 +76,7 @@ function renderRefBadges(refs) {
     // In CDP mode, we could use bounding boxes from the server
     // For now, use a floating panel approach
     const badge = document.createElement('div');
-    badge.className = 'gstack-ref-badge';
+    badge.className = 'vstack-ref-badge';
     badge.textContent = ref.ref;
     badge.title = `${ref.role}: "${ref.name}"`;
     container.appendChild(badge);
@@ -90,25 +90,25 @@ function renderRefPanel(refs) {
   const container = ensureContainer();
 
   const panel = document.createElement('div');
-  panel.className = 'gstack-ref-panel';
+  panel.className = 'vstack-ref-panel';
 
   const header = document.createElement('div');
-  header.className = 'gstack-ref-panel-header';
-  header.textContent = `gstack refs (${refs.length})`;
+  header.className = 'vstack-ref-panel-header';
+  header.textContent = `vstack refs (${refs.length})`;
   header.style.cssText = 'pointer-events: auto; cursor: move;';
   panel.appendChild(header);
 
   const list = document.createElement('div');
-  list.className = 'gstack-ref-panel-list';
+  list.className = 'vstack-ref-panel-list';
   for (const ref of refs.slice(0, 30)) { // Show max 30 in panel
     const row = document.createElement('div');
-    row.className = 'gstack-ref-panel-row';
-    row.innerHTML = `<span class="gstack-ref-panel-id">${ref.ref}</span> <span class="gstack-ref-panel-role">${ref.role}</span> <span class="gstack-ref-panel-name">"${ref.name}"</span>`;
+    row.className = 'vstack-ref-panel-row';
+    row.innerHTML = `<span class="vstack-ref-panel-id">${ref.ref}</span> <span class="vstack-ref-panel-role">${ref.role}</span> <span class="vstack-ref-panel-name">"${ref.name}"</span>`;
     list.appendChild(row);
   }
   if (refs.length > 30) {
     const more = document.createElement('div');
-    more.className = 'gstack-ref-panel-more';
+    more.className = 'vstack-ref-panel-more';
     more.textContent = `+${refs.length - 30} more`;
     list.appendChild(more);
   }
