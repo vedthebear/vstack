@@ -4,7 +4,9 @@
 
 ```bash
 bun install          # install dependencies
-bun test             # run free tests (browse + snapshot + skill validation)
+bun test             # broad free test sweep
+bun run test:core    # fast v2 core test sweep
+bun run test:legacy  # optional legacy/eval-heavy surface
 bun run test:evals   # run paid evals: LLM judge + E2E (diff-based, ~$4/run max)
 bun run test:evals:all  # run ALL paid evals regardless of diff
 bun run test:gate    # run gate-tier tests only (CI default, blocks merge)
@@ -15,7 +17,7 @@ bun run eval:select  # show which tests would run based on current diff
 bun run dev <cmd>    # run CLI in dev mode, e.g. bun run dev goto https://example.com
 bun run build        # gen docs + compile binaries
 bun run gen:skill-docs  # regenerate SKILL.md files from templates
-bun run skill:check  # health dashboard for all skills
+bun run skill:check  # health dashboard for current skill artifacts
 bun run dev:skill    # watch mode: auto-regen + validate on change
 bun run eval:list    # list all eval runs from ~/.vstack-dev/evals/
 bun run eval:compare # compare two eval runs (auto-picks most recent)
@@ -45,24 +47,26 @@ periodic tests run weekly via cron or manually. Use `EVALS_TIER=gate` or
 ## Testing
 
 ```bash
-bun test             # run before every commit — free, <2s
-bun run test:evals   # run before shipping — paid, diff-based (~$4/run max)
+bun run test:core    # run before every commit
+bun run test:evals   # run before shipping when the change touches eval-sensitive workflows
 ```
 
-`bun test` runs skill validation, gen-skill-docs quality checks, and browse
-integration tests. `bun run test:evals` runs LLM-judge quality evals and E2E
-tests via `claude -p`. Both must pass before creating a PR.
+`test:core` is the default v2 confidence loop: browser-safe unit tests, registry and
+generation checks, install-surface checks, and worktree helpers. `test:legacy` and the
+paid eval tiers exist for the broader historical surface, but they are no longer the
+default development loop for v2 work.
 
 ## Project structure
 
 ```
 vstack/
-├── browse/          # Headless browser CLI (Playwright)
+├── browse/          # Stable browser runtime (Playwright daemon + CLI)
 │   ├── src/         # CLI + server + commands
 │   │   ├── commands.ts  # Command registry (single source of truth)
 │   │   └── snapshot.ts  # SNAPSHOT_FLAGS metadata array
 │   ├── test/        # Integration tests + fixtures
 │   └── dist/        # Compiled binary
+├── config/          # v2 install surface and repo-level configuration
 ├── scripts/         # Build + DX tooling
 │   ├── gen-skill-docs.ts  # Template → SKILL.md generator
 │   ├── skill-check.ts     # Health dashboard
@@ -74,26 +78,33 @@ vstack/
 │   ├── gen-skill-docs.test.ts    # Tier 1: generator quality (free, <1s)
 │   ├── skill-llm-eval.test.ts   # Tier 3: LLM-as-judge (~$0.15/run)
 │   └── skill-e2e-*.test.ts       # Tier 2: E2E via claude -p (~$3.85/run, split by category)
-├── qa-only/         # /qa-only skill (report-only QA, no fixes)
-├── plan-design-review/  # /plan-design-review skill (report-only design audit)
-├── design-review/    # /design-review skill (design audit + fix loop)
-├── ship/            # Ship workflow skill
-├── review/          # PR review skill
-├── plan-ceo-review/ # /plan-ceo-review skill
-├── plan-eng-review/ # /plan-eng-review skill
-├── autoplan/        # /autoplan skill (auto-review pipeline: CEO → design → eng)
-├── benchmark/       # /benchmark skill (performance regression detection)
-├── canary/          # /canary skill (post-deploy monitoring loop)
-├── codex/           # /codex skill (multi-AI second opinion via OpenAI Codex CLI)
-├── land-and-deploy/ # /land-and-deploy skill (merge → deploy → canary verify)
-├── office-hours/    # /office-hours skill (YC Office Hours — startup diagnostic + builder brainstorm)
-├── investigate/     # /investigate skill (systematic root-cause debugging)
-├── retro/           # Retrospective skill (includes /retro global cross-project mode)
+├── office-hours/    # Core planning/idea-shaping skill
+├── investigate/     # Core build/debug skill
+├── review/          # Core review skill
+├── qa/              # Core QA skill
+├── ship/            # Core shipping skill
+├── guard/           # Core safety mode
+├── connect-chrome/  # Core visible-Chrome companion
+├── codex/           # Transition skill
+├── plan-ceo-review/ # Transition skill
+├── plan-eng-review/ # Transition skill
+├── qa-only/         # Transition skill
+├── careful/         # Transition skill
+├── freeze/          # Transition skill
+├── unfreeze/        # Transition skill
+├── autoplan/        # Legacy skill
+├── benchmark/       # Legacy skill
+├── canary/          # Legacy skill
+├── cso/             # Legacy skill
+├── design-consultation/ # Legacy skill
+├── design-review/   # Legacy skill
 ├── bin/             # CLI utilities (vstack-repo-mode, vstack-slug, vstack-config, etc.)
-├── document-release/ # /document-release skill (post-ship doc updates)
-├── cso/             # /cso skill (OWASP Top 10 + STRIDE security audit)
-├── design-consultation/ # /design-consultation skill (design system from scratch)
-├── setup-deploy/    # /setup-deploy skill (one-time deploy config)
+├── document-release/ # Legacy skill
+├── land-and-deploy/ # Legacy skill
+├── plan-design-review/  # Legacy skill
+├── retro/           # Legacy skill
+├── setup-browser-cookies/ # Legacy skill
+├── setup-deploy/    # Legacy skill
 ├── .github/         # CI workflows + Docker image
 │   ├── workflows/   # evals.yml (E2E on Ubicloud), skill-docs.yml, actionlint.yml
 │   └── docker/      # Dockerfile.ci (pre-baked toolchain + Playwright/Chromium)
@@ -103,6 +114,15 @@ vstack/
 ├── ETHOS.md         # Builder philosophy (Boil the Lake, Search Before Building)
 └── package.json     # Build scripts for browse
 ```
+
+## vstackv2 workflow
+
+v2 keeps generation only where drift is genuinely dangerous.
+
+- Browser command syntax still comes from code.
+- Host-specific skill transforms still come from `gen-skill-docs.ts`.
+- The default public install surface comes from `config/skill-surface.sh`.
+- Legacy skills may remain in-repo without being part of the default install.
 
 ## SKILL.md workflow
 
@@ -132,6 +152,12 @@ structures. Instead:
 
 This applies to test commands, eval commands, deploy commands, and any other
 project-specific behavior. The project owns its config; vstack reads it.
+
+## v2 maintenance rule
+
+When making changes, prefer the lean public surface unless there is a strong reason
+to invest in legacy skills. The repo still contains a broader historical toolkit, but
+the default product is the small personal operating kit described in `docs/VSTACKV2.md`.
 
 ## Writing SKILL templates
 
