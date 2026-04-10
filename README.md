@@ -275,13 +275,13 @@ Data is stored in [Supabase](https://supabase.com) (open source Firebase alterna
 **Claude says it can't see the skills?** Make sure your project's `CLAUDE.md` has a gstack section. Add this:
 
 ```
-## gstack
-Use /browse from gstack for all web browsing. Never use mcp__claude-in-chrome__* tools.
-Available skills: /office-hours, /plan-ceo-review, /plan-eng-review, /plan-design-review,
-/design-consultation, /review, /ship, /land-and-deploy, /canary, /benchmark, /browse,
-/qa, /qa-only, /design-review, /setup-browser-cookies, /setup-deploy, /retro,
-/investigate, /document-release, /codex, /cso, /autoplan, /careful, /freeze, /guard,
-/unfreeze, /gstack-upgrade.
+## vstack
+Use /browse from vstack for all web browsing. Never use mcp__claude-in-chrome__* tools.
+Core skills: /browse, /office-hours, /investigate, /review, /qa, /ship, /guard,
+/connect-chrome, /vstack-upgrade.
+Transition skills still available: /plan-ceo-review, /plan-eng-review, /qa-only,
+/careful, /freeze, /unfreeze, /codex.
+If you want the broader historical skill set too, run `./setup --legacy`.
 ```
 
 ## License
