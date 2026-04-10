@@ -10,11 +10,13 @@
 
 import { validateSkill } from '../test/helpers/skill-parser';
 import { discoverTemplates, discoverSkillFiles } from './discover-skills';
+import { classifySkill, readSkillSurface } from './skill-surface';
 import * as fs from 'fs';
 import * as path from 'path';
 import { execSync } from 'child_process';
 
 const ROOT = path.resolve(import.meta.dir, '..');
+const SKILL_SURFACE = readSkillSurface();
 
 // Find all SKILL.md files (dynamic discovery — no hardcoded list)
 const SKILL_FILES = discoverSkillFiles(ROOT);
@@ -27,9 +29,12 @@ console.log('  Skills:');
 for (const file of SKILL_FILES) {
   const fullPath = path.join(ROOT, file);
   const result = validateSkill(fullPath);
+  const skillName = file === 'SKILL.md' ? 'vstack' : path.basename(path.dirname(file));
+  const tier = classifySkill(skillName, SKILL_SURFACE);
+  const label = tier === 'unclassified' ? 'misc' : tier;
 
   if (result.warnings.length > 0) {
-    console.log(`  \u26a0\ufe0f  ${file.padEnd(30)} — ${result.warnings.join(', ')}`);
+    console.log(`  \u26a0\ufe0f  ${file.padEnd(30)} [${label}] — ${result.warnings.join(', ')}`);
     continue;
   }
 
@@ -39,7 +44,7 @@ for (const file of SKILL_FILES) {
 
   if (totalInvalid > 0 || totalSnapErrors > 0) {
     hasErrors = true;
-    console.log(`  \u274c ${file.padEnd(30)} — ${totalValid} valid, ${totalInvalid} invalid, ${totalSnapErrors} snapshot errors`);
+    console.log(`  \u274c ${file.padEnd(30)} [${label}] — ${totalValid} valid, ${totalInvalid} invalid, ${totalSnapErrors} snapshot errors`);
     for (const inv of result.invalid) {
       console.log(`      line ${inv.line}: unknown command '${inv.command}'`);
     }
@@ -47,9 +52,14 @@ for (const file of SKILL_FILES) {
       console.log(`      line ${se.command.line}: ${se.error}`);
     }
   } else {
-    console.log(`  \u2705 ${file.padEnd(30)} — ${totalValid} commands, all valid`);
+    console.log(`  \u2705 ${file.padEnd(30)} [${label}] — ${totalValid} commands, all valid`);
   }
 }
+
+console.log('\n  Surface:');
+console.log(`  Core skills:       ${SKILL_SURFACE.core.join(', ')}`);
+console.log(`  Transition skills: ${SKILL_SURFACE.transition.join(', ')}`);
+console.log(`  Legacy skills:     ${SKILL_SURFACE.legacy.join(', ')}`);
 
 // ─── Templates ──────────────────────────────────────────────
 
