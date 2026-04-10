@@ -1,6 +1,25 @@
 # Skill Deep Dives
 
-Detailed guides for every vstack skill — philosophy, workflow, and examples.
+Detailed guides for the current vstack skill set.
+
+vstackv2 treats this page as a mixed reference:
+
+- Core skills are the default public surface.
+- Transition skills still ship by default for compatibility.
+- Legacy skills remain documented because they still exist in-repo, but they are no longer part of the default toolkit story.
+
+## v2 core surface
+
+| Skill | What it does |
+|-------|--------------|
+| [`/browse`](#browse) | Persistent browser runtime for QA, dogfooding, screenshots, and evidence capture. |
+| [`/office-hours`](#office-hours) | Idea shaping and first-pass product framing. |
+| [`/investigate`](#investigate) | Build/debug workflow centered on root cause. |
+| [`/review`](#review) | Diff review before landing changes. |
+| [`/qa`](#qa) | Browser-driven QA loop with fixes. |
+| [`/ship`](#ship) | Ship workflow for tests, review, and release prep. |
+| [`/guard`](#safety--guardrails) | Safety mode for destructive commands and scoped edits. |
+| [`/vstack-upgrade`](#vstack-upgrade) | Upgrade the toolkit. |
 
 | Skill | Your specialist | What they do |
 |-------|----------------|--------------|
